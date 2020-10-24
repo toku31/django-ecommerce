@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import reverse
 
 CATEGORY_CHOICES = {
     ('S', 'Shirt'),
@@ -24,9 +25,14 @@ class Item(models.Model):
   description = models.TextField()
   image = models.ImageField(default='default.jpg', upload_to='static/images')
 
-  def _str_(self):
+  def __str__(self):
     return self.title
 
+  def get_add_to_cart_url(self):
+    return reverse('add_to_cart', kwargs={'slug':self.slug})
+
+  def get_remove_from_cart_url(self):
+    return reverse('remove_from_cart', kwargs={'slug':self.slug})
 
 class OrderItem(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -34,7 +40,7 @@ class OrderItem(models.Model):
   ordered = models.BooleanField(default=False)
   quantity = models.IntegerField(default=1)
 
-  def _str_(self):
+  def __str__(self):
     return f"{self.quantity} of {self.item.title}"
 
 
@@ -45,5 +51,5 @@ class Order(models.Model):
   start_date = models.DateField(auto_now_add=True)
   ordered_date = models.DateField()
 
-  def _str_(self):
+  def __str__(self):
     return self.user.username
